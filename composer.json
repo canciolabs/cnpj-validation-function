@@ -1,8 +1,8 @@
 {
     "name": "cancio-labs/cnpj-validation-function",
-    "description": "A function to validate a CNPJ (Brazilian Company ID)",
+    "description": "A function to validate a CNPJ (corporate registration ID)",
     "type": "library",
-    "keywords": ["cnpj", "brasil", "validation"],
+    "keywords": ["cnpj", "brazil", "validation"],
     "homepage": "https://github.com/canciolabs/cnpj-validation-function",
     "license": "GPL-3.0-or-later",
     "authors": [
@@ -31,9 +31,9 @@
         }
     },
     "require": {
-        "php": "^8.0.0"
+        "php": ">=8.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5"
+        "phpunit/phpunit": "^13.3"
     }
 }
