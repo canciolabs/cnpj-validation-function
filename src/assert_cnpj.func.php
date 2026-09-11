@@ -1,22 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CancioLabs\Cnpj\Functions;
 
 use InvalidArgumentException;
 
 if (!function_exists('assert_cnpj')) {
-    function assert_cnpj(string $cnpj): void
+    function assert_cnpj(?string $cnpj): void
     {
-        if (empty($cnpj)) {
+        if ($cnpj === null) {
+            throw new InvalidArgumentException('The CNPJ must not be null.');
+        }
+
+        if ($cnpj === '') {
             throw new InvalidArgumentException('The CNPJ must not be an empty string.');
         }
 
-        if (!preg_match('/^(\d{14})|(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/', $cnpj)) {
+        if (!preg_match('/^(?:\d{14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/', $cnpj)) {
             throw new InvalidArgumentException('The CNPJ must match either "99.999.999/9999-99" or "99999999999999" pattern.');
         }
 
         // Remove non-numeric chars
-        $cnpj = (string) preg_replace("/\D/", "", $cnpj);
+        $cnpj = preg_replace("/\D/", "", $cnpj);
 
         // 00.000.000/0000-00 is invalid
         if ($cnpj === '00000000000000') {
