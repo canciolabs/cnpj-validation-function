@@ -1,47 +1,55 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CancioLabs\Cnpj\Functions;
 
 use InvalidArgumentException;
 
-if (!function_exists('assert_cnpj')) {
-    function assert_cnpj(string $cnpj): void
+if (!function_exists(__NAMESPACE__ . '\\assert_cnpj')) {
+    function assert_cnpj(?string $cnpj): void
     {
-        if (empty($cnpj)) {
+        if ($cnpj === null) {
+            throw new InvalidArgumentException('The CNPJ must not be null.');
+        }
+
+        if ($cnpj === '') {
             throw new InvalidArgumentException('The CNPJ must not be an empty string.');
         }
 
-        if (!preg_match('/^(\d{14})|(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/', $cnpj)) {
-            throw new InvalidArgumentException('The CNPJ must match either "99.999.999/9999-99" or "99999999999999" pattern.');
+        // Convert all characters to uppercase
+        // This is important because the digit calculation is case-sensitive
+        $cnpj = strtoupper($cnpj);
+
+        if (!preg_match('/^(?:[A-Z0-9]{12}\d{2}|[A-Z0-9]{2}\.[A-Z0-9]{3}\.[A-Z0-9]{3}\/[A-Z0-9]{4}-\d{2})\z/', $cnpj)) {
+            throw new InvalidArgumentException('The CNPJ must match either "XX.XXX.XXX/XXXX-99" or "XXXXXXXXXXXX99" pattern.');
         }
 
-        // Remove non-numeric chars
-        $cnpj = (string) preg_replace("/\D/", "", $cnpj);
+        // Remove invalid chars
+        $cnpj = preg_replace('/[^A-Z0-9]+/', '', $cnpj);
 
-        // 00.000.000/0000-00 is invalid
-        if ($cnpj === '00000000000000') {
+        // Check if the CNPJ is a sequence of repeated digits
+        if (preg_match('/^(\d)\1{13}$/', $cnpj) === 1) {
             throw new InvalidArgumentException('The CNPJ is invalid.');
         }
 
         // Calculate digits
-        $c1 = $c2 = 0;
-        for ($p = 0, $m = 5; $p < 12; $p++, $m--) {
-            $c1 += $cnpj[$p] * $m;
-            if ($p === 3) {
-                $m = 10;
-            }
-        }
-        for ($p = 0, $m = 6; $p < 13; $p++, $m--) {
-            $c2 += $cnpj[$p] * $m;
-            if ($p === 4) {
-                $m = 10;
-            }
+        $sumDv1 = 0;
+        $sumDv2 = 0;
+        $asciiZero = 48;
+        $digitsWeights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+        for ($i = 0; $i < 12; ++$i) {
+            $asciiDigit = ord($cnpj[$i]) - $asciiZero;
+            $sumDv1 += $asciiDigit * $digitsWeights[$i + 1];
+            $sumDv2 += $asciiDigit * $digitsWeights[$i];
         }
 
-        // check if the last two digits are equal to c1 and c2
-        $d1 = ($c1 % 11 < 2) ? 0 : 11 - ($c1 % 11);
-        $d2 = ($c2 % 11 < 2) ? 0 : 11 - ($c2 % 11);
-        if ($d1 !== (int) $cnpj[12] || $d2 !== (int) $cnpj[13]) {
+        $dv1 = $sumDv1 % 11 < 2 ? 0 : 11 - ($sumDv1 % 11);
+        $sumDv2 += $dv1 * $digitsWeights[12];
+        $dv2 = $sumDv2 % 11 < 2 ? 0 : 11 - ($sumDv2 % 11);
+
+        if ($dv1 !== (int) $cnpj[12] || $dv2 !== (int) $cnpj[13]) {
             throw new InvalidArgumentException('The CNPJ is invalid.');
         }
     }
