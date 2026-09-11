@@ -1,15 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CancioLabs\Cnpj\Functions\Tests;
 
-trait CnpjDataProvidersTrait
+use PHPUnit\Framework\TestCase;
+
+abstract class CnpjTestCase extends TestCase
 {
 
     public static function invalidCnpjDataProvider(): array
     {
         $testCases = [];
 
-        // stringNotEmpty
+        // notEmpty
+        $testCases[] = [null];
         $testCases[] = [''];
 
         // regex
@@ -18,6 +23,8 @@ trait CnpjDataProvidersTrait
         $testCases[] = ['01.817.129.0001.50'];
         $testCases[] = ['01.817.129/0001.50'];
         $testCases[] = ['01-817-129/0001-50'];
+        $testCases[] = ['foo01817129000150'];
+        $testCases[] = ['01-817-129/0001-50foo'];
 
         // 00.000.000/0000-00 is invalid
         $testCases[] = ['00000000000000'];
@@ -25,7 +32,7 @@ trait CnpjDataProvidersTrait
         // invalid digits
         // "73.078.367/0001-00" is a valid.
         for ($i = 1; $i <= 99; $i++) {
-            $testCases[] = ['73.078.367/0001-' . str_pad($i, 2, '0', STR_PAD_LEFT)];
+            $testCases[] = ['73.078.367/0001-' . str_pad((string) $i, 2, '0', STR_PAD_LEFT)];
         }
 
         return $testCases;
