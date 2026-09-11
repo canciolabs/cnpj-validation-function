@@ -29,6 +29,7 @@ abstract class CnpjTestCase extends TestCase
         $testCases[] = ['12.ABC.345/01DE-00'];
         $testCases[] = ['12.ABC.345/01DE -35'];
         $testCases[] = ['12.ABC.345/01DE_35'];
+        $testCases[] = ["4P.561.QV9/0001-00\n"];
 
         // 00.000.000/0000-00 is invalid
         $testCases[] = ['00000000000000'];

@@ -17,17 +17,19 @@ if (!function_exists('assert_cnpj')) {
             throw new InvalidArgumentException('The CNPJ must not be an empty string.');
         }
 
+        // Convert all characters to uppercase
+        // This is important because the digit calculation is case-sensitive
         $cnpj = strtoupper($cnpj);
 
-        if (!preg_match('/^(?:[A-Z0-9]{12}\d{2}|[A-Z0-9]{2}\.[A-Z0-9]{3}\.[A-Z0-9]{3}\/[A-Z0-9]{4}-\d{2})$/', $cnpj)) {
-            throw new InvalidArgumentException('The CNPJ must match either "XX.XXX.XXX/XXXX-XX" or "XXXXXXXXXXXXXX" pattern.');
+        if (!preg_match('/^(?:[A-Z0-9]{12}\d{2}|[A-Z0-9]{2}\.[A-Z0-9]{3}\.[A-Z0-9]{3}\/[A-Z0-9]{4}-\d{2})\z/', $cnpj)) {
+            throw new InvalidArgumentException('The CNPJ must match either "XX.XXX.XXX/XXXX-99" or "XXXXXXXXXXXX99" pattern.');
         }
 
         // Remove invalid chars
         $cnpj = preg_replace('/[^A-Z0-9]+/', '', $cnpj);
 
         // Check if the CNPJ is a sequence of repeated digits
-        if ($cnpj === '00000000000000' || preg_match('/^(\d)\1{13}$/', $cnpj) === 1) {
+        if (preg_match('/^(\d)\1{13}$/', $cnpj) === 1) {
             throw new InvalidArgumentException('The CNPJ is invalid.');
         }
 
