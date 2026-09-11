@@ -6,7 +6,7 @@ namespace CancioLabs\Cnpj\Functions;
 
 use InvalidArgumentException;
 
-if (!function_exists('assert_cnpj')) {
+if (!function_exists(__NAMESPACE__ . '\\assert_cnpj')) {
     function assert_cnpj(?string $cnpj): void
     {
         if ($cnpj === null) {
