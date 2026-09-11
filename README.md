@@ -1,6 +1,6 @@
-# CNPJ functions
+# CNPJ validation function
 
-This tiny package contains a function to validate a CNPJ (corporate registration ID)
+This tiny package contains two functions to validate a CNPJ (corporate registration ID)
 
 ## Requirements
 
