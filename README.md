@@ -1,56 +1,91 @@
-# CNPJ validation function
+# CNPJ Validation Function
 
-This tiny package contains two functions to validate a CNPJ (corporate registration ID)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![PHP](https://img.shields.io/badge/PHP-%5E8.5-777bb4.svg)](https://www.php.net/)
+
+A lightweight, dependency-free PHP library for validating Brazilian CNPJ registration numbers. It accepts compact and formatted values, including the current alphanumeric CNPJ format, and provides both boolean and exception-based APIs.
 
 ## Requirements
 
-PHP 8.5 or greater is required.
+- PHP 8.5 or later
 
 ## Installation
 
-    composer require cancio-labs/cnpj-validation-function
+Install the package with Composer:
 
-## Functions
-
-1. is_valid_cnpj
-2. assert_cnpj
-
-## How to use it
-
-### is_valid_cnpj(?string $cnpj): bool
-
-Returns true if the CNPJ is valid, false otherwise.
-
+```bash
+composer require cancio-labs/cnpj-validation-function
 ```
+
+Composer automatically loads the package functions.
+
+## Usage
+
+Import the functions from the `CancioLabs\Cnpj\Functions` namespace:
+
+```php
+use function CancioLabs\Cnpj\Functions\assert_cnpj;
+use function CancioLabs\Cnpj\Functions\is_valid_cnpj;
+```
+
+### `is_valid_cnpj`
+
+Use `is_valid_cnpj(?string $cnpj): bool` when validation should return a boolean result.
+
+```php
 use function CancioLabs\Cnpj\Functions\is_valid_cnpj;
 
-// Passing formatted CNPJs
-is_valid_cnpj('86.338.579/0001-12'); // returns true
-is_valid_cnpj('46.133.600/0001-01'); // returns false
+is_valid_cnpj('73.078.367/0001-00'); // true
+is_valid_cnpj('73078367000100');     // true
+is_valid_cnpj('12.ABC.345/01DE-35'); // true
+is_valid_cnpj('12ABC34501DE35');     // true
 
-// Passing raw CNPJs
-is_valid_cnpj('46133600000129'); // returns true
-is_valid_cnpj('46133600000101'); // returns false
+is_valid_cnpj('73.078.367/0001-01'); // false
+is_valid_cnpj(null);                 // false
 ```
 
-### assert_cnpj(?string $cnpj): void
+### `assert_cnpj`
 
-Validates the CNPJ and throw an InvalidArgumentException if the CNPJ is not valid.
+Use `assert_cnpj(?string $cnpj): void` when an invalid CNPJ should stop the current operation. It throws `InvalidArgumentException` for `null`, empty, malformed, repeated-digit, or checksum-invalid values.
 
-```
+```php
 use function CancioLabs\Cnpj\Functions\assert_cnpj;
 
-// These 2 example will execute normally
-assert_cnpj('27.187.233/0001-00');
-assert_cnpj('27187233000100');
+assert_cnpj('73.078.367/0001-00');
+assert_cnpj('12ABC34501DE35');
 
-// These 4 examples throw InvalidArgumentException
-assert_cnpj(null);
-assert_cnpj('');
-assert_cnpj('foo');
-assert_cnpj('27187233000111');
+// Throws InvalidArgumentException
+assert_cnpj('73.078.367/0001-01');
 ```
 
-## Running Tests
+## Accepted formats
 
-- From the project root, run: `vendor/bin/phpunit tests`
+The first 12 characters may contain uppercase or lowercase letters and digits; letters are normalized to uppercase before validation. The final two check digits must be numeric.
+
+| Format | Example |
+| --- | --- |
+| Compact numeric | `73078367000100` |
+| Formatted numeric | `73.078.367/0001-00` |
+| Compact alphanumeric | `12ABC34501DE35` |
+| Formatted alphanumeric | `12.ABC.345/01DE-35` |
+
+## How it works
+
+The validator checks the input format, rejects repeated numeric sequences, and verifies both CNPJ check digits. It supports the alphanumeric CNPJ format while preserving compatibility with traditional numeric CNPJs.
+
+## Testing
+
+Install development dependencies and run the PHPUnit suite:
+
+```bash
+composer install
+vendor/bin/phpunit tests
+```
+
+## Contributing
+
+Contributions are welcome. Please open an issue to discuss substantial changes, then submit a pull request with focused code and accompanying tests.
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0 or later](LICENSE).
